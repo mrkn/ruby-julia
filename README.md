@@ -29,7 +29,7 @@ Julia.eval_string('print(pi)')
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/julia.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mrkn/julia.
 
 
 ## License

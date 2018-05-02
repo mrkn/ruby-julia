@@ -30,8 +30,9 @@ describe Julia do
     specify { expect_julia('UInt32(1)').to eq(1) }
     specify { expect_julia('Int64(1)').to eq(1) }
     specify { expect_julia('UInt64(1)').to eq(1) }
-    specify { expect_julia('Int128(1)').to eq(1) }
-    specify { expect_julia('UInt128(1)').to eq(1) }
-    specify { expect_julia('BigInt(1)').to eq(1) }
+
+    # String conversion
+
+    specify { expect_julia('"julia"').to eq("julia") }
   end
 end

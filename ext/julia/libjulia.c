@@ -64,6 +64,8 @@ init_api_table(VALUE handle)
   INIT_API_TABLE_ENTRY(jl_unbox_uint32);
   INIT_API_TABLE_ENTRY(jl_unbox_int64);
   INIT_API_TABLE_ENTRY(jl_unbox_uint64);
+  INIT_API_TABLE_ENTRY(jl_unbox_float32);
+  INIT_API_TABLE_ENTRY(jl_unbox_float64);
 }
 
 static VALUE
@@ -106,6 +108,12 @@ jl_eval_string(VALUE handle, VALUE arg)
   }
   if (!strcmp(type_name, "UInt64")) {
     return INT2NUM(JULIA_API(jl_unbox_uint64)(ans));
+  }
+  if (!strcmp(type_name, "Float32")) {
+    return DBL2NUM(JULIA_API(jl_unbox_float32)(ans));
+  }
+  if (!strcmp(type_name, "Float64")) {
+    return DBL2NUM(JULIA_API(jl_unbox_float64)(ans));
   }
   return rb_str_new2(type_name);
 }

@@ -34,5 +34,10 @@ describe Julia do
     # String conversion
 
     specify { expect_julia('"julia"').to eq("julia") }
+
+    # Float conversion
+
+    specify { expect_julia('Float32(0.5)').to eq(0.5) }
+    specify { expect_julia('Float64(0.5)').to eq(0.5) }
   end
 end

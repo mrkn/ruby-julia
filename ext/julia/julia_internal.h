@@ -39,6 +39,8 @@ struct julia_api_table {
   uint32_t (* jl_unbox_uint32)(jl_value_t *v);
   int64_t (* jl_unbox_int64)(jl_value_t *v);
   uint64_t (* jl_unbox_uint64)(jl_value_t *v);
+  float (* jl_unbox_float32)(jl_value_t *v);
+  double (* jl_unbox_float64)(jl_value_t *v);
 };
 
 struct julia_api_table *julia_get_api_table(void);

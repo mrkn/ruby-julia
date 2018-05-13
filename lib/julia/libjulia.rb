@@ -3,7 +3,9 @@ require 'fiddle'
 module Julia
   module LibJulia
     def self.load_lib
-      Fiddle::Handle.new('libjulia.so.0.6', Fiddle::Handle::RTLD_LAZY | Fiddle::Handle::RTLD_GLOBAL)
+      require 'julia/libjulia/finder'
+      lib_path = Finder.find_libjulia
+      Fiddle::Handle.new(lib_path[0], Fiddle::Handle::RTLD_LAZY | Fiddle::Handle::RTLD_GLOBAL)
     end
 
     def self.handle

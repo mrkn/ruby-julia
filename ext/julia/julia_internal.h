@@ -83,6 +83,7 @@ typedef struct _jl_datatype_t {
 struct julia_api_table {
   int (* jl_is_initialized)(void);
   void (* jl_init)(void);
+  char const * (* jl_ver_string)(void);
   jl_datatype_t *jl_bool_type;
   jl_datatype_t *jl_char_type;
   jl_datatype_t *jl_string_type;

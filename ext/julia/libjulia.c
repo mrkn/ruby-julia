@@ -49,7 +49,17 @@ init_api_table(VALUE handle)
     ((api_table).member_name) = fptr; \
   } while (0)
 #define INIT_API_TABLE_ENTRY(api_name) INIT_API_TABLE_ENTRY2(api_name, api_name)
+
+  if (CHECK_API_ENTRY(jl_init)) {
+    INIT_API_TABLE_ENTRY(jl_init);
+  }
+  else {
+    INIT_API_TABLE_ENTRY2(jl_init, jl_init__threading);
+  }
+
   INIT_API_TABLE_ENTRY(jl_is_initialized);
+  INIT_API_TABLE_ENTRY(jl_ver_string);
+
   INIT_API_TABLE_ENTRY(jl_bool_type);
   INIT_API_TABLE_ENTRY(jl_char_type);
   INIT_API_TABLE_ENTRY(jl_string_type);
@@ -65,7 +75,6 @@ init_api_table(VALUE handle)
   INIT_API_TABLE_ENTRY(jl_float32_type);
   INIT_API_TABLE_ENTRY(jl_float64_type);
   INIT_API_TABLE_ENTRY(jl_eval_string);
-  INIT_API_TABLE_ENTRY(jl_init);
   INIT_API_TABLE_ENTRY(jl_typeof);
   INIT_API_TABLE_ENTRY(jl_typeof_str);
   INIT_API_TABLE_ENTRY(jl_string_ptr);
@@ -220,16 +229,25 @@ jl_eval_string(VALUE handle, VALUE arg)
   return rb_str_new2(JULIA_API(jl_typeof_str)(ans));
 }
 
+static void
+define_JULIA_VERSION(void)
+{
+  char const *version = JULIA_API(jl_ver_string)();
+  rb_define_const(julia_mLibJulia, "JULIA_VERSION", rb_usascii_str_new_static(version, strlen(version)));
+}
+
 void
 julia_init_libjulia(void)
 {
   VALUE handle;
   julia_mLibJulia = rb_const_get_at(julia_mJulia, rb_intern("LibJulia"));
-  handle = rb_funcallv(julia_mLibJulia, rb_intern("handle"), 0, 0);
+  handle = rb_funcall(julia_mLibJulia, rb_intern("handle"), 0);
   rb_define_module_function(julia_mLibJulia, "jl_eval_string", jl_eval_string, 1);
   init_api_table(handle);
 
   if (JULIA_API(jl_is_initialized)() == 0) {
     JULIA_API(jl_init)();
   }
+
+  define_JULIA_VERSION();
 }

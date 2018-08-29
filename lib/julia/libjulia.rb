@@ -1,7 +1,7 @@
-require 'fiddle'
-
 module Julia
   module LibJulia
+    require 'julia/libjulia/finder'
+
     def self.load_lib
       require 'julia/libjulia/finder'
       lib_path = Finder.find_libjulia
@@ -9,7 +9,10 @@ module Julia
     end
 
     def self.handle
-      @handle ||= load_lib
+      # NOTE: Julia.init redefine this method.
+      #       See julia/init.rb for the detail.
+      Julia.init
+      handle
     end
   end
 end

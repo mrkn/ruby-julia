@@ -2,6 +2,20 @@
 
 Julia on Ruby.
 
+## Supported versions
+
+### Ruby
+
+- 2.5
+- 2.4
+- 2.3
+
+### Julia
+
+- 1.0
+- 0.7
+- 0.6
+
 ## Installation
 
 Add this line to your application's Gemfile:

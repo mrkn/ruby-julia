@@ -1,30 +1,19 @@
-#include <julia.h>
-#include <ruby.h>
+#include "julia_internal.h"
 
-VALUE rbjl_mJulia;
+VALUE julia_mJulia;
 
-static VALUE
-rbjl_julia_s_init(VALUE mod, VALUE home)
+static void
+init_julia(void)
 {
-    SafeStringValue(home);
-    jl_init(NIL_P(home) ? NULL : StringValueCStr(home));
-    return mod;
-}
-
-static VALUE
-rbjl_julia_s_eval_string(VALUE mod, VALUE str)
-{
-    SafeStringValue(str);
-    jl_eval_string(StringValueCStr(str));
-
-    return mod;
+  JULIA_API(jl_init)();
 }
 
 void
 Init_julia(void)
 {
-    rbjl_mJulia = rb_define_module("Julia");
+  julia_mJulia = rb_define_module("Julia");
 
-    rb_define_module_function(rbjl_mJulia, "init", rbjl_julia_s_init, 1);
-    rb_define_module_function(rbjl_mJulia, "eval_string", rbjl_julia_s_eval_string, 1);
+  julia_init_libjulia();
+
+  init_julia();
 }

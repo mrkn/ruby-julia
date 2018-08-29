@@ -2,6 +2,20 @@
 
 Julia on Ruby.
 
+## Supported versions
+
+### Ruby
+
+- 2.5
+- 2.4
+- 2.3
+
+### Julia
+
+- 1.0
+- 0.7
+- 0.6
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -23,14 +37,17 @@ Or install it yourself as:
 ```ruby
 require 'julia'
 
-Julia.init(ENV['JULIA_HOME'])
-Julia.eval_string('print(pi)')
+Julia.eval('print(pi)')
 ```
 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/mrkn/julia.
 
+## Authors
+
+- Kenta Murata
+- Kenta Tanoue
 
 ## License
 

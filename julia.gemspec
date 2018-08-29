@@ -1,5 +1,5 @@
-# coding: utf-8
-lib = File.expand_path('../lib', __FILE__)
+
+lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'julia/version'
 
@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Kenta Murata"]
   spec.email         = ["mrkn@cookpad.com"]
 
-  spec.summary       = %q{Julia on Ruby}
-  spec.description   = %q{Julia on Ruby}
+  spec.summary       = 'Julia on Ruby'
+  spec.description   = 'Julia on Ruby'
   spec.homepage      = "https://github.com/mrkn/ruby-julia"
   spec.license       = "MIT"
 
@@ -21,9 +21,11 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
-  spec.extensions    << 'ext/julia/extconf.rb'
 
   spec.add_development_dependency "bundler", "~> 1.10"
+  spec.add_development_dependency "pry"
+  spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake-compiler"
   spec.add_development_dependency "rspec"
 end

@@ -5,7 +5,13 @@ require 'julia/version'
 
 Gem::Specification.new do |spec|
   spec.name          = "julia"
-  spec.version       = Julia::VERSION
+  version_components = [
+    Julia::Version::MAJOR.to_s,
+    Julia::Version::MINOR.to_s,
+    Julia::Version::MICRO.to_s,
+    Julia::Version::TAG,
+  ]
+  spec.version       = version_components.compact.join(".")
   spec.authors       = ["Kenta Murata"]
   spec.email         = ["mrkn@mrkn.jp"]
 

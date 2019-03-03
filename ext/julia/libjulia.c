@@ -1,13 +1,13 @@
 #include "julia_internal.h"
 
-VALUE julia_mLibJulia;
-VALUE julia_eAPINotFound;
-struct julia_api_table api_table;
+VALUE rbjl_mLibJulia;
+VALUE rbjl_eAPINotFound;
+struct rbjl_api_table api_table;
 jl_value_t *ans;
 int8_t ans_bool;
 
-struct julia_api_table *
-julia_get_api_table(void)
+struct rbjl_api_table *
+rbjl_get_api_table(void)
 {
   return &api_table;
 }
@@ -44,7 +44,7 @@ init_api_table(VALUE handle)
 #define INIT_API_TABLE_ENTRY2(member_name, api_name) do { \
     void *fptr = LOOKUP_API_ENTRY(api_name); \
     if (!fptr) { \
-      rb_raise(julia_eAPINotFound, "Unable to find the required symbol in libjulia: %s", #api_name); \
+      rb_raise(rbjl_eAPINotFound, "Unable to find the required symbol in libjulia: %s", #api_name); \
     } \
     ((api_table).member_name) = fptr; \
   } while (0)
@@ -233,16 +233,16 @@ static void
 define_JULIA_VERSION(void)
 {
   char const *version = JULIA_API(jl_ver_string)();
-  rb_define_const(julia_mLibJulia, "JULIA_VERSION", rb_usascii_str_new_static(version, strlen(version)));
+  rb_define_const(rbjl_mLibJulia, "JULIA_VERSION", rb_usascii_str_new_static(version, strlen(version)));
 }
 
 void
-julia_init_libjulia(void)
+rbjl_init_libjulia(void)
 {
   VALUE handle;
-  julia_mLibJulia = rb_const_get_at(julia_mJulia, rb_intern("LibJulia"));
-  handle = rb_funcall(julia_mLibJulia, rb_intern("handle"), 0);
-  rb_define_module_function(julia_mLibJulia, "jl_eval_string", jl_eval_string, 1);
+  rbjl_mLibJulia = rb_const_get_at(rbjl_mJulia, rb_intern("LibJulia"));
+  handle = rb_funcall(rbjl_mLibJulia, rb_intern("handle"), 0);
+  rb_define_module_function(rbjl_mLibJulia, "jl_eval_string", jl_eval_string, 1);
   init_api_table(handle);
 
   if (JULIA_API(jl_is_initialized)() == 0) {

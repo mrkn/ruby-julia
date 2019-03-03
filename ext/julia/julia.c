@@ -1,6 +1,6 @@
 #include "julia_internal.h"
 
-VALUE julia_mJulia;
+VALUE rbjl_mJulia;
 
 static void
 init_julia(void)
@@ -11,9 +11,9 @@ init_julia(void)
 void
 Init_julia(void)
 {
-  julia_mJulia = rb_define_module("Julia");
+  rbjl_mJulia = rb_define_module("Julia");
 
-  julia_init_libjulia();
+  rbjl_init_libjulia();
 
   init_julia();
 }

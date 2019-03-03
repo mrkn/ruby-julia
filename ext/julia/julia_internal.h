@@ -80,7 +80,7 @@ typedef struct _jl_datatype_t {
     void *ditype;
 } jl_datatype_t;
 
-struct julia_api_table {
+struct rbjl_api_table {
   int (* jl_is_initialized)(void);
   void (* jl_init)(void);
   char const * (* jl_ver_string)(void);
@@ -115,11 +115,12 @@ struct julia_api_table {
   double (* jl_unbox_float64)(jl_value_t *v);
 };
 
-struct julia_api_table *julia_get_api_table(void);
-#define JULIA_API(name) (julia_get_api_table()->name)
+struct rbjl_api_table *rbjl_get_api_table(void);
+#define JULIA_API(name) (rbjl_get_api_table()->name)
 
-void julia_init_libjulia(void);
+void rbjl_init_libjulia(void);
 
-extern VALUE julia_mJulia;
-extern VALUE julia_mLibJulia;
+extern VALUE rbjl_mJulia;
+extern VALUE rbjl_mLibJulia;
+
 #endif /* JULIA_INTERNAL_H */

@@ -84,20 +84,20 @@ struct rbjl_api_table {
   int (* jl_is_initialized)(void);
   void (* jl_init)(void);
   char const * (* jl_ver_string)(void);
-  jl_datatype_t *jl_bool_type;
-  jl_datatype_t *jl_char_type;
-  jl_datatype_t *jl_string_type;
-  jl_datatype_t *jl_int8_type;
-  jl_datatype_t *jl_uint8_type;
-  jl_datatype_t *jl_int16_type;
-  jl_datatype_t *jl_uint16_type;
-  jl_datatype_t *jl_int32_type;
-  jl_datatype_t *jl_uint32_type;
-  jl_datatype_t *jl_int64_type;
-  jl_datatype_t *jl_uint64_type;
-  jl_datatype_t *jl_float16_type;
-  jl_datatype_t *jl_float32_type;
-  jl_datatype_t *jl_float64_type;
+  jl_datatype_t **jl_bool_type;
+  jl_datatype_t **jl_char_type;
+  jl_datatype_t **jl_string_type;
+  jl_datatype_t **jl_int8_type;
+  jl_datatype_t **jl_uint8_type;
+  jl_datatype_t **jl_int16_type;
+  jl_datatype_t **jl_uint16_type;
+  jl_datatype_t **jl_int32_type;
+  jl_datatype_t **jl_uint32_type;
+  jl_datatype_t **jl_int64_type;
+  jl_datatype_t **jl_uint64_type;
+  jl_datatype_t **jl_float16_type;
+  jl_datatype_t **jl_float32_type;
+  jl_datatype_t **jl_float64_type;
   jl_value_t * (* jl_eval_string)(const char *str);
   jl_value_t * (* jl_typeof)(jl_value_t *v);
   const char * (* jl_typeof_str)(jl_value_t *v);
@@ -117,6 +117,41 @@ struct rbjl_api_table {
 
 struct rbjl_api_table *rbjl_get_api_table(void);
 #define JULIA_API(name) (rbjl_get_api_table()->name)
+
+#define jl_typeis(v,t) (JULIA_API(jl_typeof)(v)==(jl_value_t*)(t))
+
+// basic predicates -----------------------------------------------------------
+#define jl_is_nothing(v)     (((jl_value_t*)(v)) == ((jl_value_t*)jl_nothing))
+#define jl_is_tuple(v)       (((jl_datatype_t*)JULIA_API(jl_typeof)(v))->name == *JULIA_API(jl_tuple_typename))
+#define jl_is_svec(v)        jl_typeis(v,*JULIA_API(jl_simplevector_type))
+#define jl_is_simplevector(v) jl_is_svec(v)
+#define jl_is_datatype(v)    jl_typeis(v,*JULIA_API(jl_datatype_type))
+#define jl_is_mutable(t)     (((jl_datatype_t*)t)->mutabl)
+#define jl_is_mutable_datatype(t) (jl_is_datatype(t) && (((jl_datatype_t*)t)->mutabl))
+#define jl_is_immutable(t)   (!((jl_datatype_t*)t)->mutabl)
+#define jl_is_immutable_datatype(t) (jl_is_datatype(t) && (!((jl_datatype_t*)t)->mutabl))
+#define jl_is_uniontype(v)   jl_typeis(v,*JULIA_API(jl_uniontype_type))
+#define jl_is_typevar(v)     jl_typeis(v,*JULIA_API(jl_tvar_type))
+#define jl_is_unionall(v)    jl_typeis(v,*JULIA_API(jl_unionall_type))
+#define jl_is_typename(v)    jl_typeis(v,*JULIA_API(jl_typename_type))
+#define jl_is_int8(v)        jl_typeis(v,*JULIA_API(jl_int8_type))
+#define jl_is_int16(v)       jl_typeis(v,*JULIA_API(jl_int16_type))
+#define jl_is_int32(v)       jl_typeis(v,*JULIA_API(jl_int32_type))
+#define jl_is_int64(v)       jl_typeis(v,*JULIA_API(jl_int64_type))
+#define jl_is_uint8(v)       jl_typeis(v,*JULIA_API(jl_uint8_type))
+#define jl_is_uint16(v)      jl_typeis(v,*JULIA_API(jl_uint16_type))
+#define jl_is_uint32(v)      jl_typeis(v,*JULIA_API(jl_uint32_type))
+#define jl_is_uint64(v)      jl_typeis(v,*JULIA_API(jl_uint64_type))
+#define jl_is_float32(v)      jl_typeis(v,*JULIA_API(jl_float32_type))
+#define jl_is_float64(v)      jl_typeis(v,*JULIA_API(jl_float64_type))
+#define jl_is_bool(v)        jl_typeis(v,*JULIA_API(jl_bool_type))
+#define jl_is_symbol(v)      jl_typeis(v,*JULIA_API(jl_sym_type))
+#define jl_is_method_instance(v) jl_typeis(v,*JULIA_API(jl_method_instance_type))
+#define jl_is_method(v)      jl_typeis(v,*JULIA_API(jl_method_type))
+#define jl_is_module(v)      jl_typeis(v,*JULIA_API(jl_module_type))
+#define jl_is_string(v)      jl_typeis(v,*JULIA_API(jl_string_type))
+/*#define jl_is_cpointer(v)    jl_is_cpointer_type(jl_typeof(v))*/
+/*#define jl_is_pointer(v)     jl_is_cpointer_type(jl_typeof(v))*/
 
 void rbjl_init_libjulia(void);
 

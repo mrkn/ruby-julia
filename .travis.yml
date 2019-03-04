@@ -1,4 +1,13 @@
+dist: xenial
 language: ruby
 rvm:
-  - 2.2.2
-before_install: gem install bundler -v 1.10.3
+  - ruby-head
+  - 2.6
+  - 2.5
+  - 2.4
+  - 2.3
+before_install:
+  - wget -O /tmp/julia.tar.gz https://julialang-s3.julialang.org/bin/linux/x64/1.1/julia-1.1.0-linux-x86_64.tar.gz
+  - sudo mkdir /usr/local/julia
+  - sudo tar xf /tmp/julia.tar.gz -C /usr/local/julia --strip-components=1
+  - export PATH="/usr/local/julia/bin:$PATH"

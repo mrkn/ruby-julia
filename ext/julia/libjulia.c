@@ -3,8 +3,6 @@
 VALUE rbjl_mLibJulia;
 VALUE rbjl_eAPINotFound;
 struct rbjl_api_table api_table;
-jl_value_t *ans;
-int8_t ans_bool;
 
 struct rbjl_api_table *
 rbjl_get_api_table(void)
@@ -74,6 +72,17 @@ init_api_table(VALUE handle)
   INIT_API_TABLE_ENTRY(jl_float16_type);
   INIT_API_TABLE_ENTRY(jl_float32_type);
   INIT_API_TABLE_ENTRY(jl_float64_type);
+  INIT_API_TABLE_ENTRY(jl_module_type);
+
+  INIT_API_TABLE_ENTRY(jl_main_module);
+  INIT_API_TABLE_ENTRY(jl_base_module);
+
+  INIT_API_TABLE_ENTRY(jl_call1);
+  INIT_API_TABLE_ENTRY(jl_call2);
+  INIT_API_TABLE_ENTRY(jl_exception_occurred);
+  INIT_API_TABLE_ENTRY(jl_exception_clear);
+  INIT_API_TABLE_ENTRY(jl_get_global);
+  INIT_API_TABLE_ENTRY(jl_symbol);
   INIT_API_TABLE_ENTRY(jl_eval_string);
   INIT_API_TABLE_ENTRY(jl_typeof);
   INIT_API_TABLE_ENTRY(jl_typeof_str);
@@ -92,18 +101,25 @@ init_api_table(VALUE handle)
 }
 
 static VALUE
-jl_eval_string(VALUE handle, VALUE arg)
+jl_eval_string(VALUE handle, VALUE arg, VALUE raw_p)
 {
   Check_Type(arg, T_STRING);
-  ans = JULIA_API(jl_eval_string)(StringValuePtr(arg));
+  jl_value_t *ans = JULIA_API(jl_eval_string)(StringValuePtr(arg));
+  /* TODO: exception handling */
+
+  if (RTEST(raw_p)) {
+    return rbjl_value_ptr_new(ans);
+  }
+
   if (jl_is_string(ans)) {
     return rb_str_new2(JULIA_API(jl_string_ptr)(ans));
   }
   if (jl_is_bool(ans)) {
-    ans_bool = JULIA_API(jl_unbox_bool)(ans);
+    int ans_bool = JULIA_API(jl_unbox_bool)(ans);
     if (ans_bool == 1){
       return Qtrue;
-    }else{
+    }
+    else {
       return Qfalse;
     }
   }
@@ -153,7 +169,7 @@ rbjl_init_libjulia(void)
   VALUE handle;
   rbjl_mLibJulia = rb_const_get_at(rbjl_mJulia, rb_intern("LibJulia"));
   handle = rb_funcall(rbjl_mLibJulia, rb_intern("handle"), 0);
-  rb_define_module_function(rbjl_mLibJulia, "jl_eval_string", jl_eval_string, 1);
+  rb_define_module_function(rbjl_mLibJulia, "jl_eval_string", jl_eval_string, 2);
   init_api_table(handle);
 
   if (JULIA_API(jl_is_initialized)() == 0) {

@@ -16,4 +16,7 @@ Init_julia(void)
   rbjl_init_libjulia();
 
   init_julia();
+
+  rbjl_init_rbcall();
+  rbjl_init_value_ptr();
 }

@@ -21,8 +21,33 @@ extern "C" {
 # error ---->> ruby requires sizeof(void*) == sizeof(long) or sizeof(LONG_LONG) to be compiled. <<----
 #endif
 
+/* from src/support/htable.h */
+
+#define HT_N_INLINE 32
+
+typedef struct {
+    size_t size;
+    void **table;
+    void *_space[HT_N_INLINE];
+} htable_t;
+
+/* from src/support/arraylist.h */
+
+#define AL_N_INLINE 29
+
+typedef struct {
+    size_t len;
+    size_t max;
+    void **items;
+    void *_space[AL_N_INLINE];
+} arraylist_t;
+
+/* from src/julia.h */
+
 typedef struct _jl_value_t jl_value_t;
 typedef struct _jl_taggedvalue_t jl_taggedvalue_t;
+
+typedef jl_value_t jl_function_t;
 
 typedef struct _jl_sym_t {
     JL_DATA_TYPE
@@ -80,6 +105,25 @@ typedef struct _jl_datatype_t {
     void *ditype;
 } jl_datatype_t;
 
+typedef struct {
+    uint64_t hi;
+    uint64_t lo;
+} jl_uuid_t;
+
+typedef struct _jl_module_t {
+    JL_DATA_TYPE
+    jl_sym_t *name;
+    struct _jl_module_t *parent;
+    htable_t bindings;
+    arraylist_t usings;  // modules with all bindings potentially imported
+    uint64_t build_id;
+    jl_uuid_t uuid;
+    size_t primary_world;
+    uint32_t counter;
+    int32_t nospecialize;  // global bit flags: initialization for new methods
+    uint8_t istopmod;
+} jl_module_t;
+
 struct rbjl_api_table {
   int (* jl_is_initialized)(void);
   void (* jl_init)(void);
@@ -98,7 +142,18 @@ struct rbjl_api_table {
   jl_datatype_t **jl_float16_type;
   jl_datatype_t **jl_float32_type;
   jl_datatype_t **jl_float64_type;
+  jl_datatype_t **jl_module_type;
+
+  jl_module_t **jl_main_module;
+  jl_module_t **jl_base_module;
+
+  jl_value_t * (* jl_call1)(jl_function_t *f, jl_value_t *a);
+  jl_value_t * (* jl_call2)(jl_function_t *f, jl_value_t *a, jl_value_t *b);
+  jl_value_t * (* jl_exception_occurred)(void);
+  void (* jl_exception_clear)(void);
   jl_value_t * (* jl_eval_string)(const char *str);
+  jl_value_t * (* jl_get_global)(jl_module_t *m, jl_sym_t *var);
+  jl_sym_t * (* jl_symbol)(const char *str);
   jl_value_t * (* jl_typeof)(jl_value_t *v);
   const char * (* jl_typeof_str)(jl_value_t *v);
   const char * (* jl_string_ptr)(jl_value_t *s);
@@ -153,9 +208,26 @@ struct rbjl_api_table *rbjl_get_api_table(void);
 /*#define jl_is_cpointer(v)    jl_is_cpointer_type(jl_typeof(v))*/
 /*#define jl_is_pointer(v)     jl_is_cpointer_type(jl_typeof(v))*/
 
+static inline jl_function_t *
+jl_get_function(jl_module_t *m, const char *name)
+{
+  return (jl_function_t*)JULIA_API(jl_get_global)(m, JULIA_API(jl_symbol)(name));
+}
+
 void rbjl_init_libjulia(void);
+void rbjl_init_rbcall(void);
+void rbjl_init_value_ptr(void);
+
+void rbjl_rbcall_incref(jl_value_t *value);
+void rbjl_rbcall_decref(jl_value_t *value);
+long rbjl_rbcall_refcnt(jl_value_t *jlobj);
+
+VALUE rbjl_value_ptr_new(jl_value_t *value);
 
 extern VALUE rbjl_mJulia;
 extern VALUE rbjl_mLibJulia;
+extern VALUE rbjl_cJuliaValuePtr;
+
+extern jl_module_t *rbjl_rbcall_module;
 
 #endif /* JULIA_INTERNAL_H */

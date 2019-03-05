@@ -112,6 +112,7 @@ jl_eval_string(VALUE handle, VALUE arg, VALUE raw_p)
   }
 
   if (jl_is_string(ans)) {
+    /* TODO: encoding */
     return rb_str_new2(JULIA_API(jl_string_ptr)(ans));
   }
   if (jl_is_bool(ans)) {

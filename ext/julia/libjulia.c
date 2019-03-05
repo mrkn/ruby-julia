@@ -72,6 +72,9 @@ init_api_table(VALUE handle)
   INIT_API_TABLE_ENTRY(jl_float16_type);
   INIT_API_TABLE_ENTRY(jl_float32_type);
   INIT_API_TABLE_ENTRY(jl_float64_type);
+  INIT_API_TABLE_ENTRY(jl_sym_type);
+  INIT_API_TABLE_ENTRY(jl_method_instance_type);
+  INIT_API_TABLE_ENTRY(jl_method_type);
   INIT_API_TABLE_ENTRY(jl_module_type);
 
   INIT_API_TABLE_ENTRY(jl_main_module);
@@ -108,10 +111,11 @@ jl_eval_string(VALUE handle, VALUE arg, VALUE raw_p)
   /* TODO: exception handling */
 
   if (RTEST(raw_p)) {
-    return rbjl_value_ptr_new(ans);
+    goto raw;
   }
 
   if (jl_is_string(ans)) {
+    /* TODO: encoding */
     return rb_str_new2(JULIA_API(jl_string_ptr)(ans));
   }
   if (jl_is_bool(ans)) {
@@ -153,7 +157,9 @@ jl_eval_string(VALUE handle, VALUE arg, VALUE raw_p)
   if (jl_is_float64(ans)) {
     return DBL2NUM(JULIA_API(jl_unbox_float64)(ans));
   }
-  return rb_str_new2(JULIA_API(jl_typeof_str)(ans));
+
+raw:
+  return rbjl_value_ptr_new(ans);
 }
 
 static void

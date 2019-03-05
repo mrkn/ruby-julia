@@ -1,6 +1,8 @@
 module Julia
   require 'julia/version'
   require 'julia/libjulia'
+  require 'julia/function'
+  require 'julia/object_wrapper'
   require 'julia/init'
 
   module_function

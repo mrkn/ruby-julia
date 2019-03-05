@@ -41,9 +41,19 @@ value_ptr_refcnt(VALUE self)
   return LONG2NUM(refcnt);
 }
 
+static VALUE
+value_ptr_typeof_str(VALUE self)
+{
+  jl_value_t *value;
+  TypedData_Get_Struct(self, jl_value_t, &rbjl_value_ptr_data_type, value);
+  const char *s = JULIA_API(jl_typeof_str)(value);
+  return rb_str_new_cstr(s);
+}
+
 void
 rbjl_init_value_ptr(void)
 {
   rbjl_cJuliaValuePtr = rb_define_class_under(rbjl_mJulia, "ValuePtr", rb_cData);
   rb_define_method(rbjl_cJuliaValuePtr, "__refcnt__", value_ptr_refcnt, 0);
+  rb_define_method(rbjl_cJuliaValuePtr, "__typeof_str__", value_ptr_typeof_str, 0);
 }

@@ -142,6 +142,9 @@ struct rbjl_api_table {
   jl_datatype_t **jl_float16_type;
   jl_datatype_t **jl_float32_type;
   jl_datatype_t **jl_float64_type;
+  jl_datatype_t **jl_sym_type;
+  jl_datatype_t **jl_method_instance_type;
+  jl_datatype_t **jl_method_type;
   jl_datatype_t **jl_module_type;
 
   jl_module_t **jl_main_module;

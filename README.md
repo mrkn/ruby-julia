@@ -12,9 +12,8 @@ Julia on Ruby.
 
 ### Julia
 
+- 1.1
 - 1.0
-- 0.7
-- 0.6
 
 ## Installation
 

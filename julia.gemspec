@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "julia"
   spec.version       = Julia::VERSION
   spec.authors       = ["Kenta Murata"]
-  spec.email         = ["mrkn@cookpad.com"]
+  spec.email         = ["mrkn@mrkn.jp"]
 
   spec.summary       = 'Julia on Ruby'
   spec.description   = 'Julia on Ruby'

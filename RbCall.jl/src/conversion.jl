@@ -29,6 +29,11 @@ end
 
 convert(::Type{VALUE}, d::Union{Float64,Float32}) = DBL2NUM(Cdouble(d))
 
+function convert(::Type{VALUE}, c::Union{ComplexF64,ComplexF32})
+  c64 = ComplexF64(c)
+  return ccall(:rb_dbl_complex_new, VALUE, (Cdouble, Cdouble), real(c64), imag(c64))
+end
+
 function convert(::Type{VALUE}, s::AbstractString)
   sb = String(s)
   return ccall(:rb_utf8_str_new, VALUE, (Cstring, Clong), sb, sizeof(sb))

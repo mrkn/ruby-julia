@@ -29,6 +29,19 @@ end
 
 convert(::Type{VALUE}, d::Union{Float64,Float32}) = DBL2NUM(Cdouble(d))
 
+if HAVE_RB_DBL_COMPLEX_NEW
+  function convert(::Type{VALUE}, c::Union{ComplexF64,ComplexF32})
+    c64 = ComplexF64(c)
+    return ccall(:rb_dbl_complex_new, VALUE, (Cdouble, Cdouble), real(c64), imag(c64))
+  end
+else
+  function convert(::Type{VALUE}, c::Union{ComplexF64,ComplexF32})
+    c64 = ComplexF64(c)
+    return ccall(:rb_complex_new, VALUE, (VALUE, VALUE),
+                 convert(VALUE, real(c64)), convert(VALUE, imag(c64)))
+  end
+end
+
 function convert(::Type{VALUE}, s::AbstractString)
   sb = String(s)
   return ccall(:rb_utf8_str_new, VALUE, (Cstring, Clong), sb, sizeof(sb))

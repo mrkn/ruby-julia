@@ -39,5 +39,10 @@ describe Julia do
 
     specify { expect_julia('Float32(0.5)').to eq(0.5) }
     specify { expect_julia('Float64(0.5)').to eq(0.5) }
+
+    # Complex conversion
+
+    specify { expect_julia('ComplexF32(1.0, -0.5)').to eq(1.0 - 0.5i) }
+    specify { expect_julia('ComplexF64(1.0,  0.5)').to eq(1.0 + 0.5i) }
   end
 end

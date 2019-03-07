@@ -150,6 +150,8 @@ RB_ULL2NUM(i::Culonglong) = ccall(:rb_ull2inum, VALUE, (Culonglong,), i)
 
 DBL2NUM(d::Cdouble) = ccall(:rb_float_new, VALUE, (Cdouble,), d)
 
+HAVE_RB_DBL_COMPLEX_NEW = hassym(libruby_handle, :rb_dbl_complex_new)
+
 #########################################################################
 # conversion
 

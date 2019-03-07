@@ -214,6 +214,8 @@ jl_get_function(jl_module_t *m, const char *name)
   return (jl_function_t*)JULIA_API(jl_get_global)(m, JULIA_API(jl_symbol)(name));
 }
 
+void rbjl_check_julia_exception(const char *message);
+
 void rbjl_init_libjulia(void);
 void rbjl_init_rbcall(void);
 void rbjl_init_value_ptr(void);

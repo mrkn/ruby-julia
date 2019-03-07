@@ -36,7 +36,11 @@ else
     libruby_handle = proc_handle
     # Now determine the name of the ruby library that these symbols are from
     some_address_in_libruby = Libdl.dlsym(libruby_handle, :rb_define_class)
-    some_address_in_main_exe = Libdl.dlsym(proc_handle, Sys.isapple() ? :_mh_execute_header : :main)
+    some_address_in_main_exe = Libdl.dlsym_e(proc_handle, Sys.isapple() ? :_mh_execute_header : :main)
+    if some_address_in_main_exe == nothing
+      # NOTE: we cannot get main symbol from ruby executable in travis-ci
+      some_address_in_main_exe = Libdl.dlsym_e(proc_handle, :_start)
+    end
     dlinfo1 = Ref{Dl_info}()
     dlinfo2 = Ref{Dl_info}()
     ccall(:dladdr, Cint, (Ptr{Cvoid}, Ptr{Dl_info}), some_address_in_libruby, dlinfo1)

@@ -98,6 +98,7 @@ init_api_table(VALUE handle)
   INIT_API_TABLE_ENTRY(jl_unbox_uint64);
   INIT_API_TABLE_ENTRY(jl_unbox_float32);
   INIT_API_TABLE_ENTRY(jl_unbox_float64);
+  INIT_API_TABLE_ENTRY(jl_unbox_voidpointer);
 }
 
 static VALUE
@@ -105,55 +106,13 @@ jl_eval_string(VALUE handle, VALUE arg, VALUE raw_p)
 {
   Check_Type(arg, T_STRING);
   jl_value_t *ans = JULIA_API(jl_eval_string)(StringValuePtr(arg));
-  /* TODO: exception handling */
+  rbjl_check_julia_exception("LibJulia.eval_string");
 
   if (RTEST(raw_p)) {
     return rbjl_value_ptr_new(ans);
   }
 
-  if (jl_is_string(ans)) {
-    return rb_str_new2(JULIA_API(jl_string_ptr)(ans));
-  }
-  if (jl_is_bool(ans)) {
-    int ans_bool = JULIA_API(jl_unbox_bool)(ans);
-    if (ans_bool == 1){
-      return Qtrue;
-    }
-    else {
-      return Qfalse;
-    }
-  }
-  if (jl_is_int8(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_int8)(ans));
-  }
-  if (jl_is_uint8(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_uint8)(ans));
-  }
-  if (jl_is_int16(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_int16)(ans));
-  }
-  if (jl_is_uint16(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_uint16)(ans));
-  }
-  if (jl_is_int32(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_int32)(ans));
-  }
-  if (jl_is_uint32(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_uint32)(ans));
-  }
-  if (jl_is_int64(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_int64)(ans));
-  }
-  if (jl_is_uint64(ans)) {
-    return INT2NUM(JULIA_API(jl_unbox_uint64)(ans));
-  }
-  if (jl_is_float32(ans)) {
-    return DBL2NUM(JULIA_API(jl_unbox_float32)(ans));
-  }
-  if (jl_is_float64(ans)) {
-    return DBL2NUM(JULIA_API(jl_unbox_float64)(ans));
-  }
-  return rb_str_new2(JULIA_API(jl_typeof_str)(ans));
+  return rbjl_rbcall_convert_to_ruby(ans);
 }
 
 static void

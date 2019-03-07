@@ -2,9 +2,18 @@
 
 jl_module_t *rbjl_rbcall_module;
 
+static jl_function_t *convert_to_ruby_function;
 static jl_function_t *incref_function;
 static jl_function_t *decref_function;
 static jl_function_t *refcnt_function;
+
+VALUE
+rbjl_rbcall_convert_to_ruby(jl_value_t *jlobj)
+{
+  jl_value_t *ans = JULIA_API(jl_call1)(convert_to_ruby_function, jlobj);
+  rbjl_check_julia_exception("rbjl_rbcall_convert_to_ruby");
+  return (VALUE)JULIA_API(jl_unbox_voidpointer)(ans);
+}
 
 void
 rbjl_rbcall_incref(jl_value_t *jlobj)
@@ -42,19 +51,7 @@ rbjl_init_rbcall(void)
   VALUE include_rbcall = rb_sprintf("Base.include(Main, \"%"PRIsVALUE"/src/RbCall.jl\")", rbcall_dir);
   const char *include_rbcall_cstr = StringValueCStr(include_rbcall);
   (void)JULIA_API(jl_eval_string)(include_rbcall_cstr);
-  jl_value_t *error = JULIA_API(jl_exception_occurred)();
-  if (error) {
-    JULIA_API(jl_exception_clear)();
-
-    jl_function_t *sprint = (jl_function_t *)JULIA_API(jl_eval_string)("sprint");
-    jl_function_t *showerror = (jl_function_t *)JULIA_API(jl_eval_string)("showerror");
-
-    jl_value_t *res = JULIA_API(jl_call2)(sprint, showerror, error);
-    if (res && jl_is_string(res)) {
-      const char * c_str = JULIA_API(jl_string_ptr)(res);
-      rb_raise(rb_eRuntimeError, "JuliaError: %s", c_str);
-    }
-  }
+  rbjl_check_julia_exception("include RbCall.jl");
 
   jl_module_t *main_module = *JULIA_API(jl_main_module);
   jl_value_t *rbcall_module = JULIA_API(jl_get_global)(main_module, JULIA_API(jl_symbol)("RbCall"));
@@ -62,6 +59,7 @@ rbjl_init_rbcall(void)
     rb_raise(rb_eRuntimeError, "RbCall is not a module");
   }
   rbjl_rbcall_module = (jl_module_t *)rbcall_module;
+  convert_to_ruby_function = jl_get_function(rbjl_rbcall_module, "convert_to_ruby");
   incref_function = jl_get_function(rbjl_rbcall_module, "_incref");
   decref_function = jl_get_function(rbjl_rbcall_module, "_decref");
   refcnt_function = jl_get_function(rbjl_rbcall_module, "_refcnt");

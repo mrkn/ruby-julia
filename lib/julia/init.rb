@@ -2,45 +2,37 @@ module Julia
   def self.const_missing(name)
     case name
     when :JULIA_VERSION, :ValuePtr
-      Julia.init
-      const_get(name)
-    else
-      super
+      return const_get(name) if Julia.init
     end
+    super
   end
 
   def self.method_missing(*args)
-    Julia.init
-    send(*args)
+    return send(*args) if Julia.init
+    super
   end
 
   module LibJulia
     def self.const_missing(name)
       case name
       when :JULIA_VERSION
-        Julia.init
-        const_get(name)
-      else
-        super
+        return const_get(name) if Julia.init
       end
+      super
     end
 
     def self.method_missing(*args)
-      Julia.init
-      send(*args)
+      return send(*args) if Julia.init
+      super
     end
   end
 
+  def self.initialized?
+    @initialized
+  end
+
   def self.init(julia = ENV['JULIA'])
-    return false if LibJulia.instance_variable_defined? :@handle
-    class << Julia
-      remove_method :const_missing
-      remove_method :method_missing
-    end
-    class << Julia::LibJulia
-      remove_method :const_missing
-      remove_method :method_missing
-    end
+    return false if initialized?
 
     require 'pathname'
     top_dir = Pathname(__dir__).parent.parent
@@ -61,6 +53,17 @@ module Julia
     end
 
     const_set(:JULIA_VERSION, LibJulia::JULIA_VERSION)
-    true
+
+    class << Julia
+      remove_method :const_missing
+      remove_method :method_missing
+    end
+
+    class << Julia::LibJulia
+      remove_method :const_missing
+      remove_method :method_missing
+    end
+
+    @initialized = true
   end
 end

@@ -168,6 +168,7 @@ struct rbjl_api_table {
   uint64_t (* jl_unbox_uint64)(jl_value_t *v);
   float (* jl_unbox_float32)(jl_value_t *v);
   double (* jl_unbox_float64)(jl_value_t *v);
+  void * (* jl_unbox_voidpointer)(jl_value_t *v);
 };
 
 struct rbjl_api_table *rbjl_get_api_table(void);
@@ -214,10 +215,13 @@ jl_get_function(jl_module_t *m, const char *name)
   return (jl_function_t*)JULIA_API(jl_get_global)(m, JULIA_API(jl_symbol)(name));
 }
 
+void rbjl_check_julia_exception(const char *message);
+
 void rbjl_init_libjulia(void);
 void rbjl_init_rbcall(void);
 void rbjl_init_value_ptr(void);
 
+VALUE rbjl_rbcall_convert_to_ruby(jl_value_t *value);
 void rbjl_rbcall_incref(jl_value_t *value);
 void rbjl_rbcall_decref(jl_value_t *value);
 long rbjl_rbcall_refcnt(jl_value_t *jlobj);

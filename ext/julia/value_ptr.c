@@ -44,6 +44,6 @@ value_ptr_refcnt(VALUE self)
 void
 rbjl_init_value_ptr(void)
 {
-  rbjl_cJuliaValuePtr = rb_define_class_under(rbjl_mJulia, "ValuePtr", rb_cData);
+  rbjl_cJuliaValuePtr = rb_define_class_under(rbjl_mJulia, "ValuePtr", rb_cObject);
   rb_define_method(rbjl_cJuliaValuePtr, "__refcnt__", value_ptr_refcnt, 0);
 }

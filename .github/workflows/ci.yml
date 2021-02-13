@@ -48,7 +48,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
 
-      - run: julia -v
+      - run: julia lib/julia/libjulia/investigator.jl
       - run: ruby -v
 
       - run: bundle install

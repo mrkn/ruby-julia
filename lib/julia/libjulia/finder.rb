@@ -23,7 +23,7 @@ module Julia
 
         def find_libjulia(julia = nil)
           debug_report "find_libjulia(#{julia.inspect})"
-          julia_cmd, julia_config = investigate_julia(julia)
+          _, julia_config = investigate_julia(julia)
 
           libpath = File.join(julia_config[:libdir], "libjulia.#{LIBSUFFIX}")
           if File.file? libpath

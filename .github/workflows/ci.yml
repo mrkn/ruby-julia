@@ -25,7 +25,7 @@ jobs:
         julia:
         - 1.5
         ruby:
-        - 3.0
+        - "3.0"
         - 2.7
         - 2.6
         - 2.5
@@ -33,7 +33,7 @@ jobs:
         include:
         - { os: windows-latest , julia: 1.5     , ruby: mingw }
         - { os: windows-latest , julia: 1.5     , ruby: mswin }
-        - { os: ubuntu-20.04   , julia: 1.6-rc1 , ruby: mingw }
+        - { os: ubuntu-20.04   , julia: 1.6-rc1 , ruby: "3.0" }
         exclude:
         - { os: windows-latest , julia: 1.5     , ruby: debug }
 

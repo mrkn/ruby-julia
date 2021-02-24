@@ -1,15 +1,22 @@
-require "bundler"
-Bundler::GemHelper.install_tasks
-
-require "rake"
+require "bundler/gem_helper"
 require "rake/extensiontask"
-require "rspec/core/rake_task"
+
+base_dir = File.join(__dir__)
+
+helper = Bundler::GemHelper.new(base_dir)
+helper.install
+spec = helper.gemspec
 
 Dir[File.expand_path('../tasks/**/*.rake', __FILE__)].each {|f| load f }
 
 Rake::ExtensionTask.new('julia')
 
-RSpec::Core::RakeTask.new(:spec)
+desc "Run tests"
+task :test do
+  cd(base_dir) do
+    ruby("test/run-test.rb")
+  end
+end
 
-task default: :spec
-task spec: :compile
+task default: :test
+task test: :compile

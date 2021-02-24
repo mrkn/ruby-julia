@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches:
+    - master
+  pull_request:
+    types:
+    - opened
+    - synchronize
+    - reopened
+
+jobs:
+  test:
+    name: ${{ matrix.os }} ${{ matrix.julia }} ${{ matrix.ruby }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - ubuntu-20.04
+        - ubuntu-18.04
+        - macos-10.15
+        # - windows-latest
+        julia:
+        - 1.5
+        ruby:
+        - "3.0"
+        - 2.7
+        - 2.6
+        - 2.5
+        - debug
+        include:
+        # - { os: windows-latest , julia: 1.5     , ruby: mingw }
+        # - { os: windows-latest , julia: 1.5     , ruby: mswin }
+        - { os: ubuntu-20.04   , julia: 1.6-rc1 , ruby: "3.0" }
+        #exclude:
+        # - { os: windows-latest , julia: 1.5     , ruby: debug }
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: julia-actions/setup-julia@v1
+        with:
+          julia-version: ${{ matrix.julia }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+
+      - run: julia lib/julia/libjulia/investigator.jl
+      - run: ruby -v
+
+      - run: bundle install
+
+      - run: rake compile
+
+      - run: rake test
+
+      - run: rake build
+
+      - run: gem install pkg/*.gem

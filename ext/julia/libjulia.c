@@ -31,7 +31,11 @@ lookup_libjulia_api(VALUE handle, char const *name)
   arg.handle = handle;
   arg.name = name;
   addr = rb_protect((VALUE (*)(VALUE))lookup_libjulia_api_0, (VALUE)&arg, &state);
-  return (state || NIL_P(addr)) ? NULL : NUM2PTR(addr);
+  if (state) {
+    rb_set_errinfo(Qnil);
+    addr = Qnil;
+  }
+  return NIL_P(addr) ? NULL : NUM2PTR(addr);
 }
 
 static void

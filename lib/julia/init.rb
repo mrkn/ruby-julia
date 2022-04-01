@@ -45,12 +45,7 @@ module Julia
       attr_reader :handle
     end
 
-    begin
-      major, minor, _ = RUBY_VERSION.split('.')
-      require "#{major}.#{minor}/julia.so"
-    rescue LoadError
-      require 'julia.so'
-    end
+    require 'julia.so'
 
     const_set(:JULIA_VERSION, LibJulia::JULIA_VERSION)
 

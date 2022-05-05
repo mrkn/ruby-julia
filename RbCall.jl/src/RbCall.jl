@@ -110,6 +110,11 @@ DBL2NUM(d::Cdouble) = ccall(:rb_float_new, VALUE, (Cdouble,), d)
 HAVE_RB_DBL_COMPLEX_NEW = hassym(libruby_handle, :rb_dbl_complex_new)
 
 #########################################################################
+# libruby
+
+include("libruby.jl")
+
+#########################################################################
 # conversion
 
 include("conversion.jl")

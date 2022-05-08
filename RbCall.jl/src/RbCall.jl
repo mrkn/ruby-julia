@@ -116,6 +116,11 @@ HAVE_RB_DBL_COMPLEX_NEW = hassym(libruby_handle, :rb_dbl_complex_new)
 include("libruby.jl")
 
 #########################################################################
+# range
+
+include("gc.jl")
+
+#########################################################################
 # conversion
 
 include("conversion.jl")
@@ -124,6 +129,11 @@ include("conversion.jl")
 # range
 
 include("range.jl")
+
+#########################################################################
+# wrapper
+
+include("jlwrap.jl")
 
 #########################################################################
 # gc

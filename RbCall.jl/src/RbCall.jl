@@ -2,7 +2,8 @@ __precompile__()
 
 module RbCall
 
-export _refcnt, _incref, _decref, gc_guard_references
+export _refcnt, _incref, _decref, gc_guard_references,
+       RubyRange
 
 include("prepare.jl")
 
@@ -118,6 +119,11 @@ include("libruby.jl")
 # conversion
 
 include("conversion.jl")
+
+#########################################################################
+# range
+
+include("range.jl")
 
 #########################################################################
 # gc

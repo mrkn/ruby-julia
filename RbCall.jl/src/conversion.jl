@@ -47,6 +47,27 @@ function convert(::Type{VALUE}, s::AbstractString)
   return ccall(:rb_utf8_str_new, VALUE, (Cstring, Clong), sb, sizeof(sb))
 end
 
+function convert(::Type{VALUE}, sym::Symbol)
+  b = Vector{UInt8}(string(sym))
+  utf8 = ccall(:rb_utf8_encoding, Ptr{Cvoid}, ())
+  id = ccall(:rb_intern3, ID, (Ptr{Cchar}, Clong, Ptr{Cvoid}), b, length(b), utf8)
+  return ccall(:rb_id2sym, VALUE, (ID,), id)
+end
+
+function convert(::Type{VALUE}, vec::Vector{T}) where {T<:Any}
+  n = length(vec)
+  ary = ccall(:rb_ary_new_capa, VALUE, (Clong,), n)
+  @inbounds for i in 1:n
+    obj = convert(VALUE, vec[i])
+    ccall(:rb_ary_push, VALUE, (VALUE, VALUE), ary, obj)
+  end
+  return ary
+end
+
+function convert(::Type{VALUE}, f::Function)
+  return jlwrap_new(f)
+end
+
 # TODO
 convert(::Type{VALUE}, ::Any) = RUBY_Qnil
 

@@ -14,5 +14,14 @@ module Julia
       Julia.init
       handle
     end
+
+    module_function def method_missing(name, *args, **kwargs, &block)
+      ::Julia.init
+      if respond_to?(name)
+        __send__(name, *args, **kwargs, &block)
+      else
+        super
+      end
+    end
   end
 end

@@ -32,7 +32,9 @@ class TestJulia < Test::Unit::TestCase
       "ComplexF32(1.0, -0.5)" => [Complex(1.0, -0.5), "ComplexF32(1.0, -0.5)"],
       "ComplexF64(1.0,  0.5)" => [Complex(1.0,  0.5), "ComplexF64(1.0,  0.5)"],
       # String
-      '"julia"' => ["julia", '"julia"']
+      '"julia"' => ["julia", '"julia"'],
+      # Array
+      '[1, 2, 3]' => [[1, 2, 3], "Vector{Any}[1, 2, 3]"]
     )
     def test_by_equal(data)
       expected, source = data

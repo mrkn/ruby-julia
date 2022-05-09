@@ -7,9 +7,13 @@ module Julia
     super
   end
 
-  def self.method_missing(*args)
-    return send(*args) if Julia.init
-    super
+  def self.method_missing(name, *args, **kwargs, &block)
+    init
+    if respond_to?(name)
+      return __send__(name, *args, **kwargs, &block)
+    else
+      super
+    end
   end
 
   module LibJulia
@@ -60,5 +64,7 @@ module Julia
     end
 
     @initialized = true
+
+    require_relative "bridge"
   end
 end

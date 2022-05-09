@@ -5,6 +5,9 @@ module RbCall
 export _refcnt, _incref, _decref, gc_guard_references,
        RubyRange
 
+# TODO: Importing Base.convert makes SEGV by convert(::Type{VALUE}, i::Int64)
+# import Base: convert
+
 include("prepare.jl")
 
 #########################################################################
@@ -159,7 +162,5 @@ function _decref(value::Any)
     end
   end
 end
-
-#########################################################################
 
 end # module RbCall

@@ -481,7 +481,7 @@ module JLTrans
     end
   end
 
-  def jl_trans(target = nil, &block)
+  def jl_trans(target = nil, dump_jl: false, &block)
     target ||= block
     ast = Yadriggy.reify(target)
     Syntax.raise_error unless Syntax.check(ast.tree)
@@ -498,7 +498,15 @@ module JLTrans
       gen.julia_function(e.tree)
     end
 
+    if dump_jl
+      $stderr.puts "# ----"
+      $stderr.puts printer.output
+      $stderr.puts "# ----"
+      $stderr.flush
+    end
+
     result = Julia.eval(printer.output)
+
     case target
     when Proc
       return result
@@ -514,6 +522,8 @@ end
 
 if __FILE__ == $0
   include JLTrans
+
+  dump_p = ARGV.include?("--dump")
 
   # code = lambda do
   #   RbCall.RubyRange(1, 0.1, 2, true)
@@ -547,7 +557,7 @@ if __FILE__ == $0
 
   alias mandelbrot_rb mandelbrot
 
-  jl_trans method(:mandelbrot)
+  jl_trans method(:mandelbrot), dump_jl: dump_p
 
   ### TEST
 

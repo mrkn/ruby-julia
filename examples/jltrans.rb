@@ -570,7 +570,7 @@ if __FILE__ == $0
 
   require "enumerable/statistics"
 
-  def ips(min_trials: 5, min_time: 2000.0)
+  def timeit(min_trials: 5, min_time: 2000.0)
     ts = []
     total_time = 0.0
     i = 0
@@ -585,7 +585,7 @@ if __FILE__ == $0
     [ts.min, ts.max, ts.mean, ts.stdev]
   end
 
-  puts "name,min,max,mean,std"
-  puts "mandelbrot_rb,%f,%f,%f,%f" % ips { mandelbrot_rb }
-  puts "mandelbrot_jl,%f,%f,%f,%f" % ips { mandelbrot }
+  puts "         name,   min,   max,  mean,   std"
+  puts "mandelbrot_rb,%6.3f,%6.3f,%6.3f,%6.3f" % timeit { mandelbrot_rb }
+  puts "mandelbrot_jl,%6.3f,%6.3f,%6.3f,%6.3f" % timeit { mandelbrot }
 end

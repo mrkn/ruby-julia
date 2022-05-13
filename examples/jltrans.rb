@@ -499,9 +499,7 @@ module JLTrans
     end
 
     if dump_jl
-      $stderr.puts "# ----"
       $stderr.puts printer.output
-      $stderr.puts "# ----"
       $stderr.flush
     end
 
@@ -523,7 +521,7 @@ end
 if __FILE__ == $0
   include JLTrans
 
-  dump_p = ARGV.include?("--dump")
+  show_jl = ARGV.include?("--show-jl")
 
   # code = lambda do
   #   RbCall.RubyRange(1, 0.1, 2, true)
@@ -557,12 +555,24 @@ if __FILE__ == $0
 
   alias mandelbrot_rb mandelbrot
 
-  jl_trans method(:mandelbrot), dump_jl: dump_p
+  jl_trans method(:mandelbrot), dump_jl: show_jl
+  exit if show_jl
 
   ### TEST
 
-  unless mandelbrot_rb == mandelbrot
-    $stderr.puts "CHECK FAILED: mandelbrot_rb == mandelbrot"
+  rb = mandelbrot_rb
+  jl = mandelbrot
+
+  unless rb == jl
+    if rb.length != jl.length
+      $stderr.puts "CHECK FAILED: length mismatched between mandelbrot_rb and mandelbrot"
+    else
+      rb.zip(jl).each_with_index do |(a, b), i|
+        if a != b
+          $stderr.puts "- MISMATCH at #{i}: #{a} != #{b}"
+        end
+      end
+    end
     abort
   end
 

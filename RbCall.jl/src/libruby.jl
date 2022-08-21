@@ -43,18 +43,31 @@ rb_define_module_under(outer::VALUE, name::String)::VALUE =
 rb_define_module(name::String)::VALUE =
   ccall((@rbsym :rb_define_module), VALUE, (Cstring, ), name)
 
-function rb_define_method(klass::VALUE, name::String, func::Function, arity::Int)
+function ruby_method_function(func, arity)
   if arity == -1
-    ccall(
-        (@rbsym :rb_define_method),
-        Cvoid,
-        (VALUE, Cstring, Ptr{Cvoid}, Cint),
-        klass,
-        name,
-        @cfunction($func, VALUE, (Cint, Ptr{VALUE}, VALUE)),
-        arity
-    )
+    @cfunction($func, VALUE, (Cint, Ptr{VALUE}, VALUE))
+  else
+    cfunc_expr = :(@cfunction($func, VALUE, (VALUE,)))
+    arg_types = cfunc_expr.args[5].args
+    for _ in 1:(arity)
+      push!(arg_types, :VALUE)
+    end
+    cfunc_expr.args[2] = LineNumberNode(cfunc_expr.args[2].line + 7,
+                                        cfunc_expr.args[2].file)
+    eval(cfunc_expr)
   end
+end
+
+function rb_define_method(klass::VALUE, name::String, func::Function, arity::Int)
+  ccall(
+      (@rbsym :rb_define_method),
+      Cvoid,
+      (VALUE, Cstring, Ptr{Cvoid}, Cint),
+      klass,
+      name,
+      ruby_method_function(func, arity),
+      arity
+  )
 end
 
 function RTYPEDDATA_DATA(obj::VALUE)

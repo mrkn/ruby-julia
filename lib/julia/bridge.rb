@@ -48,6 +48,8 @@ module Julia
 
   Base = JuliaModule.new
 
+  Base::Float64 = eval("Float64")
+
   RbCall = JuliaModule.new
 
   def self.load_module(path)

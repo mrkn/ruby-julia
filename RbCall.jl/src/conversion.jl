@@ -64,12 +64,7 @@ function convert(::Type{VALUE}, vec::Vector{T}) where {T<:Any}
   return ary
 end
 
-function convert(::Type{VALUE}, f::Function)
-  return jlwrap_new(f)
-end
-
-# TODO
-convert(::Type{VALUE}, ::Any) = RUBY_Qnil
+convert(::Type{VALUE}, x::Any) = jlwrap_new(x)
 
 function convert_to_ruby(value::Any)
   rbobj = convert(VALUE, value)

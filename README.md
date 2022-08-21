@@ -6,14 +6,13 @@ Julia on Ruby.
 
 ### Ruby
 
-- 2.5
-- 2.4
-- 2.3
+- 3.1
 
 ### Julia
 
-- 1.1
-- 1.0
+- 1.8
+- 1.7
+- 1.6
 
 ## Installation
 

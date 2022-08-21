@@ -38,6 +38,8 @@ lookup_libjulia_api(VALUE handle, char const *name)
   return NIL_P(addr) ? NULL : NUM2PTR(addr);
 }
 
+int HAVE_JL_TYPEOF = 0;
+
 static void
 init_api_table(VALUE handle)
 {
@@ -88,7 +90,10 @@ init_api_table(VALUE handle)
   INIT_API_TABLE_ENTRY(jl_get_global);
   INIT_API_TABLE_ENTRY(jl_symbol);
   INIT_API_TABLE_ENTRY(jl_eval_string);
-  INIT_API_TABLE_ENTRY(jl_typeof);
+  if (CHECK_API_ENTRY(jl_typeof)) {
+    HAVE_JL_TYPEOF = 1;
+    INIT_API_TABLE_ENTRY(jl_typeof);
+  }
   INIT_API_TABLE_ENTRY(jl_typeof_str);
   INIT_API_TABLE_ENTRY(jl_string_ptr);
   INIT_API_TABLE_ENTRY(jl_unbox_bool);

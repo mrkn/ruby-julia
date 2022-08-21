@@ -174,11 +174,11 @@ struct rbjl_api_table {
 struct rbjl_api_table *rbjl_get_api_table(void);
 #define JULIA_API(name) (rbjl_get_api_table()->name)
 
-#define jl_typeis(v,t) (JULIA_API(jl_typeof)(v)==(jl_value_t*)(t))
+#define jl_typeis(v,t) (rbjl_typeof(v)==(jl_value_t*)(t))
 
 // basic predicates -----------------------------------------------------------
 #define jl_is_nothing(v)     (((jl_value_t*)(v)) == ((jl_value_t*)jl_nothing))
-#define jl_is_tuple(v)       (((jl_datatype_t*)JULIA_API(jl_typeof)(v))->name == *JULIA_API(jl_tuple_typename))
+#define jl_is_tuple(v)       (((jl_datatype_t*)rbjl_typeof(v))->name == *JULIA_API(jl_tuple_typename))
 #define jl_is_svec(v)        jl_typeis(v,*JULIA_API(jl_simplevector_type))
 #define jl_is_simplevector(v) jl_is_svec(v)
 #define jl_is_datatype(v)    jl_typeis(v,*JULIA_API(jl_datatype_type))
@@ -213,6 +213,34 @@ static inline jl_function_t *
 jl_get_function(jl_module_t *m, const char *name)
 {
   return (jl_function_t*)JULIA_API(jl_get_global)(m, JULIA_API(jl_symbol)(name));
+}
+
+/* for Julia >= v1.8 */
+struct _jl_taggedvalue_bits {
+    uintptr_t gc:2;
+};
+struct _jl_taggedvalue_t {
+    union {
+        uintptr_t header;
+        jl_taggedvalue_t *next;
+        jl_value_t *type; // 16-byte aligned
+        struct _jl_taggedvalue_bits bits;
+    };
+    // jl_value_t value;
+};
+#define jl_astaggedvalue(v) \
+  ((jl_taggedvalue_t*)((char*)(v) - sizeof(jl_taggedvalue_t)))
+
+extern int HAVE_JL_TYPEOF;
+static inline jl_value_t *
+rbjl_typeof(jl_value_t *v) {
+  if (HAVE_JL_TYPEOF) {
+    return JULIA_API(jl_typeof)(v);
+  }
+  else {
+    /* for Julia >= v1.8 */
+    return (jl_value_t *)(jl_astaggedvalue(v)->header & ~(uintptr_t)15);
+  }
 }
 
 void rbjl_check_julia_exception(const char *message);

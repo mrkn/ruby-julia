@@ -34,7 +34,7 @@ class TestJulia < Test::Unit::TestCase
       # String
       '"julia"' => ["julia", '"julia"'],
       # Array
-      '[1, 2, 3]' => [[1, 2, 3], "Vector{Any}[1, 2, 3]"]
+      '[1, 2, 3]' => [[1, 2, 3], "Vector{Any}([1, 2, 3])"]
     )
     def test_by_equal(data)
       expected, source = data

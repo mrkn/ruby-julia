@@ -34,11 +34,51 @@ class TestJulia < Test::Unit::TestCase
       # String
       '"julia"' => ["julia", '"julia"'],
       # Array
-      '[1, 2, 3]' => [[1, 2, 3], "Vector{Any}([1, 2, 3])"]
+      'Vector{Any}([1, 2, 3])' => [[1, 2, 3], "Vector{Any}([1, 2, 3])"],
+      '[1, 2, 3]' => [[1, 2, 3], "[1, 2, 3]"]
     )
     def test_by_equal(data)
       expected, source = data
       assert_equal(expected, Julia.eval(source))
+    end
+
+    sub_test_case "Vector{Float64} object" do
+      def test_float64_array
+        result = Julia.eval("[1.0, 2.0, 3.0]")
+        assert_kind_of(Julia::JuliaBridge::JuliaWrapper, result)
+      end
+    end
+  end
+
+  test("Julia.tuple") do
+    assert_equal(Julia.eval("(1, 2, 3)"),
+                 Julia.tuple(1, 2, 3))
+  end
+
+  test("Julia::Base.typeof") do
+    jary = Julia.eval("[1.0, 2.0, 3.0]")
+    assert_equal("Array{Float64, 1}",
+                 Julia::Base.typeof(jary))
+  end
+
+  sub_test_case("Julia::Base.zeros") do
+    test("1-D result") do
+      expected = Julia.eval("[0.0, 0.0, 0.0]")
+      assert_equal(expected,
+                   Julia::Base.zeros(Julia::Base::Float64, 3))
+    end
+
+    test("2-D result with a splatted shape") do
+      expected = Julia.eval("[0.0 0.0; 0.0 0.0]")
+      assert_equal(expected,
+                   Julia::Base.zeros(Julia::Base::Float64, 2, 2))
+    end
+
+    test("2-D result with a tuple shape") do
+      expected = Julia.eval("[0.0 0.0; 0.0 0.0]")
+      shape = Julia.tuple(2, 2)
+      assert_equal(expected,
+                   Julia::Base.zeros(Julia::Base::Float64, shape))
     end
   end
 end

@@ -1,5 +1,3 @@
-__precompile__()
-
 module RbCall
 
 export _refcnt, _incref, _decref, gc_guard_references,

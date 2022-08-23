@@ -27,6 +27,7 @@ if !symbols_present
   script = joinpath(dirname(@__FILE__), "..", "ruby", "find_libruby.rb")
   cmd = `ruby $script`
   println(cmd)
+  error("Dynamically loading of libruby.so is not supported yet")
 else
   @static if Sys.iswindows()
     # TODO support windows
@@ -76,5 +77,3 @@ else
     :(cglobal(($(esc(sym)), libruby), VALUE))
   end
 end
-
-

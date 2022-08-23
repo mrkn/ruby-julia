@@ -24,10 +24,16 @@ end
 
 if !symbols_present
   # Load libruby dynamically
-  script = joinpath(dirname(@__FILE__), "..", "ruby", "find_libruby.rb")
-  cmd = `ruby $script`
-  println(cmd)
-  error("Dynamically loading of libruby.so is not supported yet")
+  include("load_libruby.jl")
+  libruby_handle = try
+    Libdl.dlopen(libruby, Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL)
+  catch err
+    if err isa ErrorException
+      error(err.msg)
+    else
+      rethrow(err)
+    end
+  end
 else
   @static if Sys.iswindows()
     # TODO support windows
@@ -35,11 +41,7 @@ else
     libruby_handle = proc_handle
     # Now determine the name of the ruby library that these symbols are from
     some_address_in_libruby = Libdl.dlsym(libruby_handle, :rb_define_class)
-    some_address_in_main_exe = Libdl.dlsym_e(proc_handle, Sys.isapple() ? :_mh_execute_header : :main)
-    if some_address_in_main_exe == nothing
-      # NOTE: we cannot get main symbol from ruby executable in travis-ci
-      some_address_in_main_exe = Libdl.dlsym_e(proc_handle, :_start)
-    end
+    some_address_in_main_exe = Libdl.dlsym_e(proc_handle, Sys.isapple() ? :_mh_execute_header : :_start)
     dlinfo1 = Ref{Dl_info}()
     dlinfo2 = Ref{Dl_info}()
     ccall(:dladdr, Cint, (Ptr{Cvoid}, Ptr{Dl_info}), some_address_in_libruby, dlinfo1)
@@ -52,6 +54,8 @@ else
   end
 end
 
+const ruby_version = vparse(unsafe_string(cglobal((:ruby_version, libruby), Cchar)))
+
 if libruby == nothing
   macro rbsym(sym)
     esc(sym)
@@ -62,7 +66,7 @@ if libruby == nothing
   end
 
   macro rbglobalobj(sym)
-    :(cglobal($(esc(sym)), VALUE))
+    :(cglobal($(esc(sym)), RbPtr))
   end
 else
   macro rbsym(sym)
@@ -73,7 +77,11 @@ else
     :(cglobal(($(esc(sym)), libruby)))
   end
 
+  macro rbglobal(sym, type)
+    :(cglobal(($(esc(sym)), libruby), $(esc(type))))
+  end
+
   macro rbglobalobj(sym)
-    :(cglobal(($(esc(sym)), libruby), VALUE))
+    :(cglobal(($(esc(sym)), libruby), RbPtr))
   end
 end

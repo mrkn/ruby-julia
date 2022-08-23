@@ -32,25 +32,25 @@ mutable struct RTypedData
   data::Ptr{Cvoid}
 end
 
-rb_cObject = Base.unsafe_load(@rbglobalobj :rb_cObject)
+rb_cObject = RubyObject(Base.unsafe_load(@rbglobalobj :rb_cObject))
 
-rb_define_class_under(outer::VALUE, name::String, klass::VALUE)::VALUE =
-  ccall((@rbsym :rb_define_class_under), VALUE, (VALUE, Cstring, VALUE), outer, name, klass)
+rb_define_class_under(outer::RubyObject, name::String, klass::RubyObject)::RubyObject =
+  ccall((@rbsym :rb_define_class_under), RbPtr, (RbPtr, Cstring, RbPtr), outer, name, klass)
 
-rb_define_module_under(outer::VALUE, name::String)::VALUE =
-  ccall((@rbsym :rb_define_module_under), VALUE, (VALUE, Cstring), outer, name)
+rb_define_module_under(outer::RubyObject, name::String)::RubyObject =
+  ccall((@rbsym :rb_define_module_under), RbPtr, (RbPtr, Cstring), outer, name)
 
-rb_define_module(name::String)::VALUE =
-  ccall((@rbsym :rb_define_module), VALUE, (Cstring, ), name)
+rb_define_module(name::String)::RubyObject =
+  ccall((@rbsym :rb_define_module), RbPtr, (Cstring, ), name)
 
 function ruby_method_function(func, arity)
   if arity == -1
-    @cfunction($func, VALUE, (Cint, Ptr{VALUE}, VALUE))
+    @cfunction($func, RbPtr, (Cint, Ptr{RbPtr}, RbPtr))
   else
-    cfunc_expr = :(@cfunction($func, VALUE, (VALUE,)))
+    cfunc_expr = :(@cfunction($func, RbPtr, (RbPtr,)))
     arg_types = cfunc_expr.args[5].args
     for _ in 1:(arity)
-      push!(arg_types, :VALUE)
+      push!(arg_types, :RbPtr)
     end
     cfunc_expr.args[2] = LineNumberNode(cfunc_expr.args[2].line + 7,
                                         cfunc_expr.args[2].file)
@@ -58,11 +58,11 @@ function ruby_method_function(func, arity)
   end
 end
 
-function rb_define_method(klass::VALUE, name::String, func::Function, arity::Int)
+function rb_define_method(klass::RubyObject, name::String, func::Function, arity::Int)
   ccall(
       (@rbsym :rb_define_method),
       Cvoid,
-      (VALUE, Cstring, Ptr{Cvoid}, Cint),
+      (RbPtr, Cstring, Ptr{Cvoid}, Cint),
       klass,
       name,
       ruby_method_function(func, arity),
@@ -70,17 +70,19 @@ function rb_define_method(klass::VALUE, name::String, func::Function, arity::Int
   )
 end
 
-function RTYPEDDATA_DATA(obj::VALUE)
-  ptr = Ptr{RTypedData}(obj)
+function RTYPEDDATA_DATA(p::RbPtr)
+  ptr = Ptr{RTypedData}(p)
   offset = fieldoffset(RTypedData, 5)  # offset of data
   Base.unsafe_load(Ptr{Ptr{Cvoid}}(ptr + offset))
 end
 
-function TypedData_Make_Struct(klass::VALUE, type::Type, data_type::Ref{rb_data_type_t})
+RTYPEDDATA_DATA(obj::RubyObject) = RTYPEDDATA_DATA(obj.o)
+
+function TypedData_Make_Struct(klass::RubyObject, type::Type, data_type::Ref{rb_data_type_t})::RubyObject
   ccall(
       (@rbsym :rb_data_typed_object_zalloc),
-      VALUE,
-      (VALUE, Csize_t, Ref{rb_data_type_t}),
+      RbPtr,
+      (RbPtr, Csize_t, Ref{rb_data_type_t}),
       klass, sizeof(type), data_type
   )
 end

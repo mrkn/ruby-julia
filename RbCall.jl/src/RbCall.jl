@@ -1,10 +1,14 @@
 module RbCall
 
+using VersionParsing
+
 export _refcnt, _incref, _decref, gc_guard_references,
-       RubyRange
+       RubyRange,
+       RubyObject, RbPtr, @rbsym, RbNULL
 
 # TODO: Importing Base.convert makes SEGV by convert(::Type{VALUE}, i::Int64)
 # import Base: convert
+import Base: convert, unsafe_convert
 
 include("prepare.jl")
 
@@ -40,6 +44,34 @@ struct RVALUE_struct
 end
 
 const RbPtr = Ptr{RVALUE_struct}
+const RbPtr_NULL = RbPtr(C_NULL)
+
+#########################################################################
+# Wrapper type of Ruby object
+
+mutable struct RubyObject
+  o::RbPtr
+end
+
+RbPtr(ro::RubyObject) = getfield(ro, :o)
+
+"""
+    RbNULL()
+"""
+RbNULL() = RubyObject(RbPtr_NULL)
+
+function Base.copy!(dest::RubyObject, src::RubyObject)
+  setfield!(dest, :o, RbPtr(src))
+  return dest
+end
+
+# conversion to pass RubyObject as ccall arguments:
+unsafe_convert(::Type{RbPtr}, ro::RubyObject) = RbPtr(ro)
+
+# use constructor for generic conversions to RubyObject
+convert(::Type{RubyObject}, o) = RubyObject(o)
+convert(::Type{RubyObject}, ro::RubyObject) = ro
+RubyObject(ro::RubyObject) = ro
 
 #########################################################################
 # basic constants
@@ -55,27 +87,27 @@ else
 end
 
 @static if RUBY_USE_FLONUM
-  const RUBY_Qfalse = 0x00
-  const RUBY_Qtrue  = 0x14
-  const RUBY_Qnil   = 0x08
-  const RUBY_Qundef = 0x34
-  const RUBY_IMMEDIATE_MASK = 0x07
-  const RUBY_FIXNUM_FLAG    = 0x01
-  const RUBY_FLONUM_MASK    = 0x03
-  const RUBY_FLONUM_FLAG    = 0x02
-  const RUBY_SYMBOL_FLAG    = 0x0c
+  const RUBY_Qfalse = VALUE(0x00)
+  const RUBY_Qtrue  = VALUE(0x14)
+  const RUBY_Qnil   = VALUE(0x08)
+  const RUBY_Qundef = VALUE(0x34)
+  const RUBY_IMMEDIATE_MASK = VALUE(0x07)
+  const RUBY_FIXNUM_FLAG    = VALUE(0x01)
+  const RUBY_FLONUM_MASK    = VALUE(0x03)
+  const RUBY_FLONUM_FLAG    = VALUE(0x02)
+  const RUBY_SYMBOL_FLAG    = VALUE(0x0c)
 else
-  const RUBY_Qfalse = 0
-  const RUBY_Qtrue  = 2
-  const RUBY_Qnil   = 4
-  const RUBY_Qundef = 6
-  const RUBY_IMMEDIATE_MASK = 0x03
-  const RUBY_FIXNUM_FLAG    = 0x01
-  const RUBY_FLONUM_MASK    = 0x00
-  const RUBY_FLONUM_FLAG    = 0x02
-  const RUBY_SYMBOL_FLAG    = 0x0e
+  const RUBY_Qfalse = VALUE(0)
+  const RUBY_Qtrue  = VALUE(2)
+  const RUBY_Qnil   = VALUE(4)
+  const RUBY_Qundef = VALUE(6)
+  const RUBY_IMMEDIATE_MASK = VALUE(0x03)
+  const RUBY_FIXNUM_FLAG    = VALUE(0x01)
+  const RUBY_FLONUM_MASK    = VALUE(0x00)
+  const RUBY_FLONUM_FLAG    = VALUE(0x02)
+  const RUBY_SYMBOL_FLAG    = VALUE(0x0e)
 end
-const RUBY_SPECIAL_SHIFT  = 8
+const RUBY_SPECIAL_SHIFT  = VALUE(8)
 
 #########################################################################
 # basic utilities
@@ -85,14 +117,16 @@ RB_POSFIXABLE(x::Integer) = x <= RUBY_FIXNUM_MAX
 RB_NEGFIXABLE(x::Integer) = x >= RUBY_FIXNUM_MIN
 RB_FIXABLE(x::Integer) = RB_POSFIXABLE(x) && RB_NEGFIXABLE(x)
 
-RB_INT2FIX(i::Integer) = (VALUE(i) << 1) | RUBY_FIXNUM_FLAG
-RB_LONG2FIX(i::Clong) = RB_INT2FIX(i)
+RB_INT2FIX(i::Integer) = RbPtr((VALUE(i) << 1) | RUBY_FIXNUM_FLAG)
+RB_LONG2FIX(i::Clong) = RbPtr(RB_INT2FIX(i))
+
+RbPtr(val::VALUE) = GC.@preserve Base.unsafe_load(Ptr{RbPtr}(pointer([val])))
 
 function RB_LONG2NUM(i::Clong)
   if RB_FIXABLE(i)
     return RB_LONG2FIX(i)
   else
-    return ccall(:rb_int2big, VALUE, (Cintptr_t,), Cintptr_t(i))
+    return ccall(:rb_int2big, RbPtr, (Cintptr_t,), Cintptr_t(i))
   end
 end
 
@@ -100,14 +134,14 @@ function RB_ULONG2NUM(i::Culong)
   if RB_POSFIXABLE(i)
     return RB_LONG2FIX(Clong(i))
   else
-    return ccall(:rb_uint2big, VALUE, (Cuintptr_t,), Cuintptr_t(i))
+    return ccall(:rb_uint2big, RbPtr, (Cuintptr_t,), Cuintptr_t(i))
   end
 end
 
-RB_LL2NUM(i::Clonglong) = ccall(:rb_ll2inum, VALUE, (Clonglong,), i)
-RB_ULL2NUM(i::Culonglong) = ccall(:rb_ull2inum, VALUE, (Culonglong,), i)
+RB_LL2NUM(i::Clonglong) = ccall(:rb_ll2inum, RbPtr, (Clonglong,), i)
+RB_ULL2NUM(i::Culonglong) = ccall(:rb_ull2inum, RbPtr, (Culonglong,), i)
 
-DBL2NUM(d::Cdouble) = ccall(:rb_float_new, VALUE, (Cdouble,), d)
+DBL2NUM(d::Cdouble) = ccall(:rb_float_new, RbPtr, (Cdouble,), d)
 
 HAVE_RB_DBL_COMPLEX_NEW = hassym(libruby_handle, :rb_dbl_complex_new)
 
@@ -160,5 +194,10 @@ function _decref(value::Any)
     end
   end
 end
+
+#########################################################################
+# init
+
+include("init.jl")
 
 end # module RbCall

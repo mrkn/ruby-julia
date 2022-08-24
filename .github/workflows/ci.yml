@@ -53,6 +53,8 @@ jobs:
 
       - run: bundle install
 
+      - run: julia -e 'using Pkg; cd("RbCall.jl"); Pkg.develop(PackageSpec(path = pwd()))'
+
       - run: rake compile
 
       - run: rake test

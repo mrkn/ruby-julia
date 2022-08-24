@@ -43,8 +43,8 @@ mkpath(dirname(prefsfile))
 const ruby = try
   let rb = get(ENV, "RUBY", isfile(prefsfile) ? readchomp(prefsfile) : "ruby")
     vers = vparse(rbconfig(rb, "RUBY_VERSION"))
-    if vers < v"3.0"
-      error("Ruby version $vers < 3.0 is not supported")
+    if vers < v"2.6"
+      error("Ruby version $vers < 2.6 is not supported")
     end
 
     # check word-size consistency between Ruby and Julia

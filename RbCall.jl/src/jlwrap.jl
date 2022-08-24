@@ -21,7 +21,7 @@ jlwrap_data_type[] = rb_data_type_t(jlwrap_type_name;
                                     dsize=@cfunction(jlwrap_size, Csize_t, (Ptr{jlwrap_t},))
                                    )
 
-function is_jlwrap(ro::RubyObject)
+function is_jlwrap(ro::Union{RubyObject,RbPtr})
   Bool(ccall((@rbsym :rb_typeddata_is_kind_of), Cint, (RbPtr, Ptr{rb_data_type_t}), ro, jlwrap_data_type))
 end
 
@@ -36,6 +36,16 @@ function unsafe_jlwrap_to_objref(ro::Union{RubyObject,RbPtr})
   GC.@preserve ro begin
     data = Base.unsafe_load(Ptr{jlwrap_t}(RTYPEDDATA_DATA(ro)))
     data.value
+  end
+end
+
+function jlwrap_eq(ro_self::RbPtr, ro_other::RbPtr)::RbPtr
+  self = unsafe_jlwrap_to_objref(ro_self)
+  if is_jlwrap(ro_other)
+    other = unsafe_jlwrap_to_objref(ro_other)
+    self == other ? RbPtr_Qtrue : RbPtr_Qfalse
+  else
+    RbPtr_Qfalse
   end
 end
 

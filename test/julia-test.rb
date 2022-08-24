@@ -57,7 +57,7 @@ class TestJulia < Test::Unit::TestCase
 
   test("Julia.typeof") do
     jary = Julia.eval("[1.0, 2.0, 3.0]")
-    assert_equal("Array{Float64, 1}",
+    assert_equal(Julia.eval("Array{Float64, 1}"),
                  Julia.typeof(jary))
   end
 

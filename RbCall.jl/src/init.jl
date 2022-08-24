@@ -11,7 +11,8 @@ function jlwrap_init()
 
   rb_define_method(cJuliaWrapper, "call", jlwrap_call, -1)
   rb_define_method(cJuliaWrapper, "inspect", jlwrap_inspect, 0)
-  #rb_define_method(cJuliaWrapper, "to_s", jlwrap_inspect, 0)
+
+  rb_define_method(cJuliaWrapper, "==", jlwrap_eq, 1)
 end
 
 function __init__()

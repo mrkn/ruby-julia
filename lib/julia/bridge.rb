@@ -72,4 +72,18 @@ module Julia
       end
     end
   end
+
+  module_function def tuple(*values)
+    Julia::Base["tuple"].(*values)
+  end
+
+  module_function def typeof(x)
+    Julia::Base["typeof"].(x)
+  end
+
+  module Base
+    module_function def zeros(type, *dims)
+      Julia::Base["zeros"].(type, *dims)
+    end
+  end
 end

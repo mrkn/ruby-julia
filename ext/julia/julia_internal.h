@@ -61,6 +61,9 @@ typedef struct {
     size_t length;
 } jl_svec_t;
 
+#define jl_svec_len(t)  (((jl_svec_t*)(t))->length)
+#define jl_svec_data(t) ((jl_value_t**)((char*)(t) + sizeof(jl_svec_t)))
+
 typedef struct {
     uint32_t nfields;
     uint32_t alignment : 9;
@@ -151,6 +154,7 @@ struct rbjl_api_table {
   jl_value_t * (* jl_call2)(jl_function_t *f, jl_value_t *a, jl_value_t *b);
   jl_value_t * (* jl_exception_occurred)(void);
   void (* jl_exception_clear)(void);
+  jl_value_t * (* jl_get_backtrace)(void);
   jl_value_t * (* jl_eval_string)(const char *str);
   jl_value_t * (* jl_get_global)(jl_module_t *m, jl_sym_t *var);
   jl_sym_t * (* jl_symbol)(const char *str);

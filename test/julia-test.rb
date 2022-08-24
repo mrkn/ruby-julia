@@ -55,10 +55,10 @@ class TestJulia < Test::Unit::TestCase
                  Julia.tuple(1, 2, 3))
   end
 
-  test("Julia::Base.typeof") do
+  test("Julia.typeof") do
     jary = Julia.eval("[1.0, 2.0, 3.0]")
     assert_equal("Array{Float64, 1}",
-                 Julia::Base.typeof(jary))
+                 Julia.typeof(jary))
   end
 
   sub_test_case("Julia::Base.zeros") do

@@ -11,6 +11,12 @@ rbjl_check_julia_exception(const char *message)
   jl_value_t *error = JULIA_API(jl_exception_occurred)();
   if (!error) return;
 
+#if 1
+  jl_value_t *backtrace = JULIA_API(jl_get_backtrace)();
+  jl_function_t *println = (jl_function_t *)JULIA_API(jl_eval_string)("println");
+  JULIA_API(jl_call1)(println, backtrace);
+#endif
+
   JULIA_API(jl_exception_clear)();
 
   sprint = (jl_function_t *)JULIA_API(jl_eval_string)("sprint");

@@ -32,7 +32,7 @@ mutable struct RTypedData
   data::Ptr{Cvoid}
 end
 
-rb_cObject = RubyObject(Base.unsafe_load(@rbglobalobj :rb_cObject))
+const rb_cObject = RubyObject(RbPtr_Qnil)
 
 rb_define_class_under(outer::RubyObject, name::String, klass::RubyObject)::RubyObject =
   ccall((@rbsym :rb_define_class_under), RbPtr, (RbPtr, Cstring, RbPtr), outer, name, klass)

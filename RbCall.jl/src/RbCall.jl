@@ -53,6 +53,11 @@ VALUE(rp::RbPtr) = unsafe_load(Ptr{VALUE}(pointer_from_objref(Ref(rp))))
 
 mutable struct RubyObject
   o::RbPtr
+  function RubyObject(o::RbPtr)
+    ro = new(o)
+    # TODO: GC guard
+    return ro
+  end
 end
 
 RbPtr(ro::RubyObject) = getfield(ro, :o)

@@ -48,10 +48,17 @@ rbjl_init_rbcall(void)
   VALUE rbcall_dir = rb_ivar_get(rbjl_mJulia, rb_intern("@rbcall_dir"));
   StringValue(rbcall_dir);
 
-  VALUE include_rbcall = rb_sprintf("Base.include(Main, \"%"PRIsVALUE"/src/RbCall.jl\")", rbcall_dir);
-  const char *include_rbcall_cstr = StringValueCStr(include_rbcall);
-  (void)JULIA_API(jl_eval_string)(include_rbcall_cstr);
-  rbjl_check_julia_exception("include RbCall.jl");
+  VALUE activate_rbcall = rb_sprintf("using Pkg; Pkg.activate(\"%"PRIsVALUE"\"); Pkg.instantiate()", rbcall_dir);
+  const char *activate_rbcall_cstr = StringValueCStr(activate_rbcall);
+  (void)JULIA_API(jl_eval_string)(activate_rbcall_cstr);
+  rbjl_check_julia_exception("activate RbCall.jl");
+
+  const char *import_rbcall_cstr = "const RbCall = Base.require(Base.PkgId(Base.UUID(\"e48ed527-55e0-470b-8004-4e1039b7b23c\"), \"RbCall\"))";
+  (void)JULIA_API(jl_eval_string)(import_rbcall_cstr);
+  rbjl_check_julia_exception("import RbCall");
+
+  (void)JULIA_API(jl_eval_string)("using .RbCall");
+  rbjl_check_julia_exception("using .RbCall");
 
   jl_module_t *main_module = *JULIA_API(jl_main_module);
   jl_value_t *rbcall_module = JULIA_API(jl_get_global)(main_module, JULIA_API(jl_symbol)("RbCall"));

@@ -1,4 +1,4 @@
-const RubyNothing = GC.@preserve RubyObject(Base.unsafe_load(unsafe_convert(Ptr{RbPtr}, pointer([RUBY_Qnil]))))
+const RubyNothing = RubyObject(RbPtr_Qnil)
 
 const mJulia = RbNULL()
 const mJuliaBridge = RbNULL()
@@ -20,6 +20,8 @@ function __init__()
   if rv != 0
     error("Unable to setup Ruby VM")
   end
+
+  copy!(rb_cObject, RubyObject(Base.unsafe_load(@rbglobalobj :rb_cObject)))
 
   jlwrap_init()
 end

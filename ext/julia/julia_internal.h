@@ -131,6 +131,8 @@ struct rbjl_api_table {
   int (* jl_is_initialized)(void);
   void (* jl_init)(void);
   char const * (* jl_ver_string)(void);
+  void (* jl_atexit_hook)(int);
+
   jl_datatype_t **jl_bool_type;
   jl_datatype_t **jl_char_type;
   jl_datatype_t **jl_string_type;

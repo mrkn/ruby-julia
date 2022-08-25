@@ -63,6 +63,7 @@ init_api_table(VALUE handle)
 
   INIT_API_TABLE_ENTRY(jl_is_initialized);
   INIT_API_TABLE_ENTRY(jl_ver_string);
+  INIT_API_TABLE_ENTRY(jl_atexit_hook);
 
   INIT_API_TABLE_ENTRY(jl_bool_type);
   INIT_API_TABLE_ENTRY(jl_char_type);
@@ -125,6 +126,16 @@ jl_eval_string(VALUE handle, VALUE arg, VALUE raw_p)
   return rbjl_rbcall_convert_to_ruby(ans);
 }
 
+static VALUE
+jl_atexit_hook(VALUE handle, VALUE exitcode)
+{
+  Check_Type(exitcode, T_FIXNUM);
+  JULIA_API(jl_atexit_hook)((int)FIX2LONG(exitcode));
+  rbjl_check_julia_exception("LibJulia.jl_atexit_hook");
+
+  return Qnil;
+}
+
 static void
 define_JULIA_VERSION(void)
 {
@@ -139,6 +150,7 @@ rbjl_init_libjulia(void)
   rbjl_mLibJulia = rb_const_get_at(rbjl_mJulia, rb_intern("LibJulia"));
   handle = rb_funcall(rbjl_mLibJulia, rb_intern("handle"), 0);
   rb_define_module_function(rbjl_mLibJulia, "jl_eval_string", jl_eval_string, 2);
+  rb_define_module_function(rbjl_mLibJulia, "jl_atexit_hook", jl_atexit_hook, 1);
   init_api_table(handle);
 
   if (JULIA_API(jl_is_initialized)() == 0) {

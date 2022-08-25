@@ -63,6 +63,10 @@ module Julia
       remove_method :method_missing
     end
 
+    at_exit {
+      LibJulia.jl_atexit_hook(0)
+    }
+
     @initialized = true
 
     require_relative "bridge"

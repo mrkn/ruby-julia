@@ -1,1 +1,1 @@
-const gcguard = Dict{RubyObject, Any}()
+const gcguard = Dict{RbPtr, Any}()

@@ -28,7 +28,7 @@ end
 function jlwrap_new(x::Any)::RubyObject
   obj = TypedData_Make_Struct(cJuliaWrapper, jlwrap_t, jlwrap_data_type)
   Base.unsafe_store!(Ptr{jlwrap_t}(RTYPEDDATA_DATA(obj)), jlwrap_t(obj, x))
-  gcguard[obj] = x
+  gcguard[RbPtr(obj)] = x
   return obj
 end
 

@@ -16,10 +16,6 @@ end
 
 const jlwrap_type_name = Base.unsafe_convert(Cstring, "julia.jlwrap")
 const jlwrap_data_type = Ref{rb_data_type_t}()
-const jlwrap_free_cfunc = @cfunction(jlwrap_free, Cvoid, (Ptr{jlwrap_t},))
-const jlwrap_size_cfunc = @cfunction(jlwrap_size, Csize_t, (Ptr{jlwrap_t},))
-
-jlwrap_data_type[] = rb_data_type_t(jlwrap_type_name; dfree=jlwrap_free_cfunc, dsize=jlwrap_size_cfunc)
 
 function is_jlwrap(ro::Union{RubyObject,RbPtr})
   Bool(ccall((@rbsym :rb_typeddata_is_kind_of), Cint, (RbPtr, Ptr{rb_data_type_t}), ro, jlwrap_data_type))

@@ -7,7 +7,7 @@
 
 RubyObject(::Nothing) = RubyObject(RbPtr_Qnil)
 
-RubyObject(b::Bool) = RubyObject(RbPtr(b ? RUBY_Qtrue : RUBY_Qfalse))
+RubyObject(b::Bool) = RubyObject(b ? RbPtr_Qtrue : RbPtr_Qfalse)
 
 RubyObject(i::Int8) = RubyObject(RB_INT2FIX(Cint(i)))
 RubyObject(i::UInt8) = RubyObject(RB_INT2FIX(Cint(i)))

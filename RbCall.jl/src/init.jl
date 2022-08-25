@@ -1,5 +1,3 @@
-const RubyNothing = RubyObject(RbPtr_Qnil)
-
 const mJulia = RbNULL()
 const mJuliaBridge = RbNULL()
 const cJuliaWrapper = RbNULL()

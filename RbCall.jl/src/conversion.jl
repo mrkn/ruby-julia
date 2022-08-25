@@ -5,7 +5,7 @@
 
 # conversions from Julia types to RubyObject:
 
-RubyObject(::Nothing) = RubyNothing[]
+RubyObject(::Nothing) = RubyObject(RbPtr_Qnil)
 
 RubyObject(b::Bool) = RubyObject(RbPtr(b ? RUBY_Qtrue : RUBY_Qfalse))
 

@@ -5,6 +5,8 @@ class TestJulia < Test::Unit::TestCase
 
   sub_test_case("Julia.eval") do
     data(
+      # Nothing
+      "nil" => [nil, "nothing"],
       # Boolean
       "true"  => [true, "true"],
       "false" => [false, "false"],

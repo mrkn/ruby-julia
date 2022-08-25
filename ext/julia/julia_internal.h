@@ -152,8 +152,11 @@ struct rbjl_api_table {
   jl_module_t **jl_main_module;
   jl_module_t **jl_base_module;
 
+  jl_value_t * (* jl_call)(jl_function_t *f, jl_value_t **args, uint32_t nargs);
+  jl_value_t * (* jl_call0)(jl_function_t *f);
   jl_value_t * (* jl_call1)(jl_function_t *f, jl_value_t *a);
   jl_value_t * (* jl_call2)(jl_function_t *f, jl_value_t *a, jl_value_t *b);
+  jl_value_t * (* jl_call3)(jl_function_t *f, jl_value_t *a, jl_value_t *b, jl_value_t *c);
   jl_value_t * (* jl_exception_occurred)(void);
   void (* jl_exception_clear)(void);
   jl_value_t * (* jl_get_backtrace)(void);

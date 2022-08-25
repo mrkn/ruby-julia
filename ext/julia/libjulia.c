@@ -84,8 +84,11 @@ init_api_table(VALUE handle)
   INIT_API_TABLE_ENTRY(jl_main_module);
   INIT_API_TABLE_ENTRY(jl_base_module);
 
+  INIT_API_TABLE_ENTRY(jl_call);
+  INIT_API_TABLE_ENTRY(jl_call0);
   INIT_API_TABLE_ENTRY(jl_call1);
   INIT_API_TABLE_ENTRY(jl_call2);
+  INIT_API_TABLE_ENTRY(jl_call3);
   INIT_API_TABLE_ENTRY(jl_exception_occurred);
   INIT_API_TABLE_ENTRY(jl_exception_clear);
   INIT_API_TABLE_ENTRY(jl_get_backtrace);

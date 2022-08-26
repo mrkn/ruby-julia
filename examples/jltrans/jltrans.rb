@@ -481,6 +481,13 @@ module JLTrans
     end
   end
 
+  def self.extended(obj)
+    obj.instance_eval do
+      @jl_func = {}
+      @jl_source = {}
+    end
+  end
+
   def jl_trans(target = nil, dump_jl: false, &block)
     target ||= block
     ast = Yadriggy.reify(target)
@@ -503,17 +510,36 @@ module JLTrans
       $stderr.flush
     end
 
-    result = Julia.eval(printer.output)
+    source = printer.output
+    result = Julia.eval(source)
 
     case target
     when Proc
       return result
     else Method
-      name = target.name.to_s
-      jl_func = Julia.eval(name)
-      define_method(name) do |*args, **kwargs|
-        jl_func.(*args, **kwargs)
-      end
+      name = target.name
+      jl_func = Julia.eval(name.to_s)
+      @jl_source[name] = source
+      @jl_func[name] = jl_func
+      define_julia_method(name)
     end
+  end
+
+  def define_julia_method(name)
+    define_method(name) do |*args, **kwargs|
+      @jl_func[name].(*args, **kwargs)
+    end
+  end
+
+  def code_julia(method_name)
+    @jl_source[method_name]
+  end
+
+  def code_lowered(method_name)
+    Julia::Base[:code_lowered].(@jl_func[method_name])
+  end
+
+  def code_native(method_name, arg_types)
+    Julia::InteractiveUtils[:code_native].(@jl_func[method_name], arg_types)
   end
 end

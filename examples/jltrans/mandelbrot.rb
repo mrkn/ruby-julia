@@ -1,6 +1,6 @@
 require_relative "jltrans"
 
-include JLTrans
+extend JLTrans
 
 show_jl = ARGV.include?("--show-jl")
 
@@ -30,8 +30,11 @@ end
 
 alias mandelbrot_rb mandelbrot
 
-jl_trans method(:mandelbrot), dump_jl: show_jl
-exit if show_jl
+jl_trans method(:mandelbrot)
+
+if show_jl
+  puts code_julia(:mandelbrot)
+end
 
 ### TEST
 

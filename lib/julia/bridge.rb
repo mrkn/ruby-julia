@@ -48,6 +48,9 @@ module Julia
 
   Base = JuliaModule.new
 
+  Julia.eval("using InteractiveUtils")
+  InteractiveUtils = JuliaModule.new
+
   Base::Float64 = eval("Float64")
 
   RbCall = JuliaModule.new

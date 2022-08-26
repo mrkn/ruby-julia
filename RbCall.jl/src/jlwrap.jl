@@ -5,7 +5,7 @@ end
 
 function jlwrap_free(ptr::Ptr{jlwrap_t})::Cvoid
   data = Base.unsafe_load(ptr)
-  delete!(gcguard, data.rbobj)
+  delete!(gcguard, RbPtr(data.rbobj))
   return
 end
 

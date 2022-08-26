@@ -49,7 +49,13 @@ module Julia
       attr_reader :handle
     end
 
-    require 'julia.so'
+    begin
+      require "julia.so"
+    rescue LoadError
+      ext_dir = File.expand_path("../../../ext/julia", __FILE__)
+      $LOAD_PATH.unshift(ext_dir)
+      require "julia.so"
+    end
 
     const_set(:JULIA_VERSION, LibJulia::JULIA_VERSION)
 

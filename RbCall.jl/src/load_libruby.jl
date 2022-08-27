@@ -16,7 +16,7 @@ function find_libruby(ruby::AbstractString; _dlopen = Libdl.dlopen)
   dlopen_flags = Libdl.RTLD_LAZY|Libdl.RTLD_DEEPBIND|Libdl.RTLD_GLOBAL
 
   libdir = rbconfig(ruby, "RbConfig::CONFIG[\"libdir\"]")
-  for libname in ["libruby.so"]
+  for libname in ["libruby.so", "libruby.dylib"]
     lib = joinpath(libdir, libname)
     try
       _dlopen(lib, dlopen_flags)

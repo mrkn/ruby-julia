@@ -4,12 +4,6 @@ include JLTrans
 
 show_jl = ARGV.include?("--show-jl")
 
-# code = lambda do
-#   RbCall.RubyRange(1, 0.1, 2, true)
-#   RubyRange(-2, 0.1, 0.5)
-# end
-# pp Yadriggy::SourceCode.get_sexp(code)
-
 def abs2(z)
   z.real * z.real + z.imag * z.imag
 end
